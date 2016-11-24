@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Chicken Coop Dadoop!</title>
+
+  <link rel="stylesheet" href="/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="/css/bootstrap-theme.min.css" />
+
+  <style type="text/css">
+  <!--
+
+  #msgLog{
+    height:100px;
+    overflow-y:scroll;
+  }
+
+  -->
+  </style>
+
+  <script   src="https://code.jquery.com/jquery-3.1.1.min.js"   integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="   crossorigin="anonymous"></script>
+
+
+
+  <script type="text/javascript">
+  <!--
+
+  	var client=null;
+  	var motorOn=false;
+
+  	$(document).ready(function(){
+
+  		client = new WebSocket("ws://localhost:8080/","rpiws-protocol");
+
+  		client.onopen=function(event){
+  			var msgListen27 = {command:"listen", callbackToken: "input1", listenOn:13};
+  			client.send(JSON.stringify(msgListen27));
+
+  			var msgWrite17 = {command:"writable", callbackToken: "write1", writeOn: 11};
+  			client.send(JSON.stringify(msgWrite17));
+
+
+
+  		}
+
+  		client.onmessage=function(evt){
+  			var evtData = JSON.parse(evt.data);
+  			if(evtData.callbackToken=="write2"){
+  				return;
+  			}
+
+  			var el = document.getElementById('msgLog');
+  			el.innerHTML = new Date().toLocaleString() + "Value: " + evtData.value.toString() + "<br />"+("" + el.innerHTML);
+  			toggleSwitch();
+
+  			console.log("toggleState: " + toggleState().toString());
+
+  			engageMotor();
+  		}
+
+
+
+  		$("#toggleSwitch").on("change",function(){
+  			engageMotor();
+  		});
+
+  	});
+
+  	function engageMotor(){
+  		if(toggleState() && !motorOn){
+  			console.log("engage motor");
+        appendLogMsg("Engage Motor");
+  			motorOn=true;
+  			$("#toggleSwitch").prop("disabled",true);
+
+  			var msgWriteTo17 = {command: "write", callbackToken: "write2",writeOn: 11, value:true};
+  			client.send(JSON.stringify(msgWriteTo17));
+
+  			setTimeout(function(){
+  				var clear17 = {command: "write", callbackToken: "write2",writeOn: 11, value:false};
+  				client.send(JSON.stringify(clear17));
+  				motorOn=false;
+  				$("#toggleSwitch").prop("disabled",false);
+  				toggleSwitch();
+          appendLogMsg("Motor Off");
+  			},5000);
+  		}
+  	}
+
+  	function toggleState(){
+  		return $("#toggleSwitch").prop("checked");
+  	}
+
+  	function toggleSwitch(){
+  		$("#lbl_toggleSwitch").button('toggle')
+  	}
+
+
+    function appendLogMsg(msg){
+      var html = $("#msgLog").html();
+      $("#msgLog").html(msg + "<br />" + html);
+    }
+
+  -->
+  </script>
+</head>
+<body>
+
+  <div class="panel panel-default">
+    <div class="panel-heading">Chicken Coop Dadoop!</div>
+    <div class="panel-body">
+      <div class="btn-group" data-toggle="buttons">
+        <label class="btn btn-primary" id="lbl_toggleSwitch">
+    	   <input type="checkbox" id="toggleSwitch">Door
+       </label>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="panel panel-default">
+  <div class="panel-heading">Log</div>
+  <div class="panel-body">
+    <div id="msgLog"></div>
+  </div>
+</div>
+
+
+  <script src="/js/bootstrap.min.js" type="text/javascript"></script>
+</body>
+</html>
